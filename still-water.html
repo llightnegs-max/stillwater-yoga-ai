@@ -128,6 +128,13 @@
   }
   .nav a:hover { color: var(--ink); }
   .nav a:hover::after { transform: scaleX(1); }
+  
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
   .sound-toggle {
     background: none;
     border: 1px solid var(--line);
@@ -153,6 +160,82 @@
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
   }
+
+  /* ─────── NEW: Premium AI Assistant Drawer ─────── */
+  .ai-toggle-btn {
+    background: var(--ink);
+    color: var(--cream-bright);
+    border: none;
+    border-radius: 999px;
+    padding: 0.55rem 1.2rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 400ms var(--ease-quiet);
+  }
+  .ai-toggle-btn:hover { background: var(--terracotta); }
+
+  .chat-drawer {
+    position: fixed;
+    top: 0; right: -420px;
+    width: 100%; max-width: 400px; height: 100vh;
+    background: var(--cream-bright);
+    box-shadow: -10px 0 40px rgba(44, 38, 32, 0.15);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    transition: right 500ms var(--ease-emphasis);
+  }
+  .chat-drawer.is-open { right: 0; }
+  
+  .chat-drawer__header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--line-soft);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--cream-soft);
+  }
+  .chat-drawer__title { font-family: 'Fraunces', serif; font-size: 1.2rem; color: var(--ink); }
+  .chat-drawer__subtitle { font-size: 11px; color: var(--sage-deep); text-transform: uppercase; letter-spacing: 0.1em; }
+  .chat-drawer__close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--ink-soft); }
+
+  .chat-drawer__messages {
+    flex: 1; padding: 1.5rem; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .chat-bubble {
+    max-width: 85%; padding: 0.9rem 1.2rem; border-radius: 16px;
+    font-size: 0.92rem; line-height: 1.5; font-family: 'Inter', sans-serif;
+  }
+  .chat-bubble.assistant {
+    background: var(--cream-soft); color: var(--ink); align-self: flex-start; border-bottom-left-radius: 4px;
+    font-family: 'Fraunces', serif; font-style: italic;
+  }
+  .chat-bubble.user {
+    background: var(--terracotta); color: var(--cream-bright); align-self: flex-end; border-bottom-right-radius: 4px;
+  }
+  .chat-bubble.error {
+    background: #f8d7da; color: #721c24; align-self: center; font-size: 0.8rem; border-radius: 6px;
+  }
+
+  .chat-drawer__input-area {
+    padding: 1.2rem; border-top: 1px solid var(--line-soft);
+    display: flex; gap: 0.5rem; background: var(--cream-bright);
+  }
+  .chat-drawer__input {
+    flex: 1; padding: 0.75rem 1.2rem; border: 1px solid var(--sand);
+    border-radius: 20px; outline: none; font-size: 0.9rem; background: transparent;
+    font-family: 'Inter', sans-serif;
+  }
+  .chat-drawer__input:focus { border-color: var(--terracotta); }
+  .chat-drawer__submit {
+    background: var(--ink); color: var(--cream-bright); border: none;
+    padding: 0 1.2rem; border-radius: 20px; cursor: pointer; font-family: 'Inter', sans-serif;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .chat-drawer__submit:disabled { background: var(--sand-deep); }
 
   /* ─────── Section frame ─────── */
   section { position: relative; }
@@ -1107,7 +1190,6 @@
 
 <div class="grain"></div>
 
-<!-- ───────── Topbar ───────── -->
 <header class="topbar">
   <div class="topbar__inner">
     <a href="#top" class="brand">
@@ -1120,20 +1202,40 @@
       <a href="#schedule">Schedule</a>
       <a href="#signup">First Class</a>
     </nav>
-    <button class="sound-toggle" id="soundToggle" aria-label="Toggle ambient sound">
-      <span class="sound-toggle__icon">
-        <svg width="14" height="14" viewBox="0 0 14 14">
-          <path d="M2 5 L2 9 L5 9 L8 12 L8 2 L5 5 Z" fill="currentColor"/>
-          <path class="sound-wave wave-1" d="M9.8 4 Q11.5 7 9.8 10" stroke="currentColor" fill="none" stroke-width="0.8" stroke-linecap="round"/>
-          <path class="sound-wave wave-2" d="M11.5 2.4 Q14 7 11.5 11.6" stroke="currentColor" fill="none" stroke-width="0.8" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <span class="sound-toggle__label" id="soundLabel">Sound · Off</span>
-    </button>
+    <div class="topbar-right">
+      <button class="sound-toggle" id="soundToggle" aria-label="Toggle ambient sound">
+        <span class="sound-toggle__icon">
+          <svg width="14" height="14" viewBox="0 0 14 14">
+            <path d="M2 5 L2 9 L5 9 L8 12 L8 2 L5 5 Z" fill="currentColor"/>
+            <path class="sound-wave wave-1" d="M9.8 4 Q11.5 7 9.8 10" stroke="currentColor" fill="none" stroke-width="0.8" stroke-linecap="round"/>
+            <path class="sound-wave wave-2" d="M11.5 2.4 Q14 7 11.5 11.6" stroke="currentColor" fill="none" stroke-width="0.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="sound-toggle__label" id="soundLabel">Sound · Off</span>
+      </button>
+      
+      <button class="ai-toggle-btn" onclick="toggleChat(true)">Ask Assistant</button>
+    </div>
   </div>
 </header>
 
-<!-- ───────── Hero ───────── -->
+<div class="chat-drawer" id="chatDrawer">
+  <div class="chat-drawer__header">
+    <div>
+      <h3 class="chat-drawer__title">Stillwater Concierge</h3>
+      <span class="chat-drawer__subtitle">Studio Coordinator</span>
+    </div>
+    <button class="chat-drawer__close" onclick="toggleChat(false)">×</button>
+  </div>
+  <div class="chat-drawer__messages" id="chatMessages">
+    <div class="chat-bubble assistant">Welcome to Stillwater. I am the coordinator here. How may I guide your practice or assist with your schedule today?</div>
+  </div>
+  <div class="chat-drawer__input-area">
+    <input type="text" class="chat-drawer__input" id="chatInput" placeholder="Ask about classes, rooms, pricing..." autocomplete="off">
+    <button class="chat-drawer__submit" id="chatSendBtn" onclick="sendChatMessage()">Ask</button>
+  </div>
+</div>
+
 <section class="hero" id="top">
   <div class="hero__media">
     <div class="hero__img-wrap">
@@ -1157,7 +1259,6 @@
   </div>
 </section>
 
-<!-- ───────── Practices ───────── -->
 <section class="practices" id="practices">
   <header class="section-head">
     <span class="section-label fade-up">02 · Practices</span>
@@ -1216,7 +1317,6 @@
   </div>
 </section>
 
-<!-- ───────── Teachers ───────── -->
 <section class="teachers" id="teachers">
   <header class="section-head">
     <span class="section-label fade-up">03 · Teachers</span>
@@ -1269,7 +1369,6 @@
   </div>
 </section>
 
-<!-- ───────── Schedule ───────── -->
 <section class="schedule" id="schedule">
   <header class="section-head">
     <span class="section-label fade-up">04 · Week of October 14</span>
@@ -1328,178 +1427,9 @@
         </div>
       </dl>
     </div>
-
-    <div class="sched-row" data-room="Sun Room">
-      <div class="sched-row__main">
-        <div class="sched-day">Tue</div>
-        <div class="sched-time">7:00 AM</div>
-        <div class="sched-class">Slow Vinyasa</div>
-        <div class="sched-teacher">Anya Perrin</div>
-        <div class="sched-seats">
-          <span class="dots"><i></i><i></i><i></i><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i></span>
-          <span class="seats-text">5 / 8</span>
-        </div>
-        <div class="sched-expand">+</div>
-      </div>
-      <dl class="sched-row__detail">
-        <div class="sched-detail__inner">
-          <dt>Room</dt><dd>Sun Room · 74°F · <em>north-facing with tall windows</em></dd>
-          <dt>Bring</dt><dd>Water. Mat and props provided. <em>Arrive ten minutes early.</em></dd>
-          <dt>Prep</dt><dd>Light breakfast is fine. No perfume, please.</dd>
-        </div>
-      </dl>
-    </div>
-
-    <div class="sched-row" data-room="Cedar Room">
-      <div class="sched-row__main">
-        <div class="sched-day">Tue</div>
-        <div class="sched-time">12:00 PM</div>
-        <div class="sched-class">Midday Reset <em>· 45 min</em></div>
-        <div class="sched-teacher">Marcus Reed</div>
-        <div class="sched-seats">
-          <span class="dots"><i></i><i></i><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i></span>
-          <span class="seats-text">4 / 8</span>
-        </div>
-        <div class="sched-expand">+</div>
-      </div>
-      <dl class="sched-row__detail">
-        <div class="sched-detail__inner">
-          <dt>Room</dt><dd>Cedar Room · 70°F</dd>
-          <dt>Bring</dt><dd>Comfortable clothes you can move in. <em>Perfect for the lunch hour.</em></dd>
-          <dt>Prep</dt><dd>A mix of gentle flow, breathwork, and a long savasana. Designed to fit into a workday.</dd>
-        </div>
-      </dl>
-    </div>
-
-    <div class="sched-row" data-room="Sun Room">
-      <div class="sched-row__main">
-        <div class="sched-day">Tue</div>
-        <div class="sched-time">7:30 PM</div>
-        <div class="sched-class">Breathwork</div>
-        <div class="sched-teacher">Iris Tanaka</div>
-        <div class="sched-seats">
-          <span class="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i></span>
-          <span class="seats-text">6 / 10</span>
-        </div>
-        <div class="sched-expand">+</div>
-      </div>
-      <dl class="sched-row__detail">
-        <div class="sched-detail__inner">
-          <dt>Room</dt><dd>Sun Room · 72°F · <em>candles, eye pillows, low light</em></dd>
-          <dt>Bring</dt><dd>Nothing. Everything is provided. <em>Wear layers — body temperature drops.</em></dd>
-          <dt>Prep</dt><dd>Avoid eating heavily for two hours before. Caffeine will make this harder.</dd>
-        </div>
-      </dl>
-    </div>
-
-    <div class="sched-row" data-room="Cedar Room">
-      <div class="sched-row__main">
-        <div class="sched-day">Wed</div>
-        <div class="sched-time">7:00 AM</div>
-        <div class="sched-class">Yin</div>
-        <div class="sched-teacher">Marcus Reed</div>
-        <div class="sched-seats">
-          <span class="dots"><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i></span>
-          <span class="seats-text">1 / 6</span>
-        </div>
-        <div class="sched-expand">+</div>
-      </div>
-      <dl class="sched-row__detail">
-        <div class="sched-detail__inner">
-          <dt>Room</dt><dd>Cedar Room · 70°F · <em>quiet, low light</em></dd>
-          <dt>Bring</dt><dd>Layers. Two blankets and a bolster are at your mat. <em>Arrive ten minutes early.</em></dd>
-          <dt>Prep</dt><dd>Warm muscles respond better — a hot shower beforehand helps.</dd>
-        </div>
-      </dl>
-    </div>
-
-    <div class="sched-row" data-room="Sun Room">
-      <div class="sched-row__main">
-        <div class="sched-day">Wed</div>
-        <div class="sched-time">6:30 PM</div>
-        <div class="sched-class">Slow Vinyasa <em>· 75 min</em></div>
-        <div class="sched-teacher">Anya Perrin</div>
-        <div class="sched-seats">
-          <span class="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="off"></i></span>
-          <span class="seats-text is-low">7 / 8</span>
-        </div>
-        <div class="sched-expand">+</div>
-      </div>
-      <dl class="sched-row__detail">
-        <div class="sched-detail__inner">
-          <dt>Room</dt><dd>Sun Room · 75°F</dd>
-          <dt>Bring</dt><dd>Water and a hand towel. <em>Mat and props provided.</em></dd>
-          <dt>Prep</dt><dd>Our flagship 75-minute sequence. Expect long holds and patient transitions.</dd>
-        </div>
-      </dl>
-    </div>
-
-    <div class="sched-row" data-room="Sun Room">
-      <div class="sched-row__main">
-        <div class="sched-day">Thu</div>
-        <div class="sched-time">7:30 PM</div>
-        <div class="sched-class">Breathwork <em>· 60 min</em></div>
-        <div class="sched-teacher">Iris Tanaka</div>
-        <div class="sched-seats">
-          <span class="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="off"></i><i class="off"></i></span>
-          <span class="seats-text is-low">8 / 10</span>
-        </div>
-        <div class="sched-expand">+</div>
-      </div>
-      <dl class="sched-row__detail">
-        <div class="sched-detail__inner">
-          <dt>Room</dt><dd>Sun Room · 72°F · <em>candles, low light</em></dd>
-          <dt>Bring</dt><dd>Layers. <em>Eye pillow and blanket provided.</em></dd>
-          <dt>Prep</dt><dd>Empty-ish stomach. No caffeine for three hours.</dd>
-        </div>
-      </dl>
-    </div>
-
-    <div class="sched-row" data-room="Sun Room">
-      <div class="sched-row__main">
-        <div class="sched-day">Sat</div>
-        <div class="sched-time">9:00 AM</div>
-        <div class="sched-class">Long Practice <em>· 120 min · both rooms</em></div>
-        <div class="sched-teacher">Anya &amp; Iris</div>
-        <div class="sched-seats">
-          <span class="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i></span>
-          <span class="seats-text is-low">9 / 12</span>
-        </div>
-        <div class="sched-expand">+</div>
-      </div>
-      <dl class="sched-row__detail">
-        <div class="sched-detail__inner">
-          <dt>Room</dt><dd>Both rooms open · <em>followed by tea in the kitchen</em></dd>
-          <dt>Bring</dt><dd>Layers, water, and a friend if you like. <em>Stay for tea afterward.</em></dd>
-          <dt>Prep</dt><dd>Two hours of slow vinyasa, long yin, breathwork, and a twenty-minute savasana. The week's anchor.</dd>
-        </div>
-      </dl>
-    </div>
-
-    <div class="sched-row" data-room="Cedar Room">
-      <div class="sched-row__main">
-        <div class="sched-day">Sun</div>
-        <div class="sched-time">9:00 AM</div>
-        <div class="sched-class">Restorative</div>
-        <div class="sched-teacher">Marcus Reed</div>
-        <div class="sched-seats">
-          <span class="dots"><i></i><i></i><i></i><i></i><i class="off"></i><i class="off"></i></span>
-          <span class="seats-text">4 / 6</span>
-        </div>
-        <div class="sched-expand">+</div>
-      </div>
-      <dl class="sched-row__detail">
-        <div class="sched-detail__inner">
-          <dt>Room</dt><dd>Cedar Room · 68°F · <em>cool and dim</em></dd>
-          <dt>Bring</dt><dd>Socks, a long-sleeve layer. <em>Everything else provided.</em></dd>
-          <dt>Prep</dt><dd>The slowest class of the week. Ninety minutes, almost entirely on the floor.</dd>
-        </div>
-      </dl>
-    </div>
   </div>
 </section>
 
-<!-- ───────── First Class Free ───────── -->
 <section class="signup" id="signup">
   <div class="signup__inner">
     <div class="signup__text">
@@ -1547,7 +1477,6 @@
   </div>
 </section>
 
-<!-- ───────── Footer ───────── -->
 <footer>
   <div class="footer__inner">
     <div class="footer__brand">
@@ -1563,31 +1492,9 @@
         <li class="em">718 · 555 · 0142</li>
       </ul>
     </div>
-    <div class="footer__col">
-      <h4>Hours</h4>
-      <ul>
-        <li>Mon–Fri · 6:30a–8:30p</li>
-        <li>Saturday · 8:00a–6:00p</li>
-        <li>Sunday · 8:00a–4:00p</li>
-        <li class="em">Closed in August</li>
-      </ul>
-    </div>
-    <div class="footer__col">
-      <h4>Quietly</h4>
-      <ul>
-        <li>Instagram</li>
-        <li>Substack · letters</li>
-        <li class="em">No apps. No push.</li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer__base">
-    <span>© Stillwater Studio · MMXIV</span>
-    <span>Two rooms · Eight mats · One breath</span>
   </div>
 </footer>
 
-<!-- ───────── Breath guide ───────── -->
 <div class="breath-guide" id="breathGuide">
   <div class="breath-orb"></div>
   <div class="breath-info">
@@ -1596,18 +1503,59 @@
   </div>
 </div>
 
-<!-- ───────── Sound opt-in toast ───────── -->
-<div class="sound-toast" id="soundToast">
-  <span class="sound-toast__text">A single soft chime on first scroll — opt in?</span>
-  <div class="sound-toast__btns">
-    <button class="sound-toast__btn secondary" id="soundDecline">Not now</button>
-    <button class="sound-toast__btn" id="soundAccept">Enable</button>
-  </div>
-</div>
-
 <script>
 (() => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ─────── NEW: Chat Drawer Drawer Logic ─────── */
+  window.toggleChat = function(open) {
+    document.getElementById('chatDrawer').classList.toggle('is-open', open);
+  }
+
+  let chatHistory = [];
+  window.sendChatMessage = async function() {
+    const input = document.getElementById('chatInput');
+    const msgArea = document.getElementById('chatMessages');
+    const sendBtn = document.getElementById('chatSendBtn');
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Append User Message
+    appendBubble(text, 'user');
+    input.value = '';
+    input.disabled = true; sendBtn.disabled = true;
+    chatHistory.push({ role: "user", content: text });
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: chatHistory })
+      });
+      const data = await response.json();
+      appendBubble(data.result, 'assistant');
+      chatHistory.push({ role: "assistant", content: data.result });
+    } catch(e) {
+      appendBubble("Connection interrupted. Please breathe and try again.", 'error');
+      chatHistory.pop();
+    } finally {
+      input.disabled = false; sendBtn.disabled = false; input.focus();
+    }
+  }
+
+  function appendBubble(text, sender) {
+    const area = document.getElementById('chatMessages');
+    const b = document.createElement('div');
+    b.classList.add('chat-bubble', sender);
+    b.textContent = text;
+    area.appendChild(b);
+    area.scrollTop = area.scrollHeight;
+  }
+  
+  // Enter key support for chat
+  document.getElementById('chatInput').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') sendChatMessage();
+  });
 
   /* ─────── Fade-up IntersectionObserver ─────── */
   const fadeEls = document.querySelectorAll('.fade-up');
@@ -1621,13 +1569,11 @@
   }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
   fadeEls.forEach(el => fadeObserver.observe(el));
 
-  // Hero ones fire immediately so the headline is in on load
   document.querySelectorAll('.hero .fade-up').forEach(el => {
     setTimeout(() => el.classList.add('is-in'), 100);
   });
 
   /* ─────── Breath guide phase cycling ─────── */
-  // 8-second cycle: 4s inhale + 4s exhale (yogic breath)
   const breathLabel = document.getElementById('breathLabel');
   const breathPhase = document.getElementById('breathPhase');
   const breathGuide = document.getElementById('breathGuide');
@@ -1637,7 +1583,7 @@
     const startTime = Date.now();
     function tickBreath() {
       const elapsed = (Date.now() - startTime) / 1000;
-      const cycle = elapsed % 8; // 0-4 inhale, 4-8 exhale
+      const cycle = elapsed % 8;
       const sec = Math.floor(cycle % 4) + 1;
       if (cycle < 4) {
         breathLabel.textContent = 'Inhale';
@@ -1651,206 +1597,14 @@
     tickBreath();
   }
 
-  /* ─────── Teacher quote typewriter on hover ─────── */
-  document.querySelectorAll('.teacher').forEach(card => {
-    const quoteEl = card.querySelector('.teacher__quote');
-    const full = card.dataset.quote;
-    let timer = null;
-    let typing = false;
-
-    function clear() {
-      if (timer) { clearTimeout(timer); timer = null; }
-      typing = false;
-      quoteEl.innerHTML = '';
-      card.classList.remove('is-typing');
-    }
-
-    function type() {
-      if (typing) return;
-      typing = true;
-      card.classList.add('is-typing');
-      let i = 0;
-      quoteEl.innerHTML = '';
-      const cursor = document.createElement('span');
-      cursor.className = 'teacher__quote-cursor';
-      quoteEl.appendChild(cursor);
-
-      function step() {
-        if (i < full.length && typing) {
-          const text = document.createTextNode(full.charAt(i));
-          quoteEl.insertBefore(text, cursor);
-          i++;
-          // slight variation in speed for natural feel
-          const delay = full.charAt(i - 1) === ' ' ? 18 : (full.charAt(i - 1) === ',' ? 60 : (/[\.—]/.test(full.charAt(i - 1)) ? 140 : 28));
-          timer = setTimeout(step, delay);
-        } else {
-          // done typing — remove cursor after a beat
-          setTimeout(() => { if (cursor.parentNode) cursor.remove(); }, 800);
-          typing = false;
-        }
-      }
-      step();
-    }
-
-    card.addEventListener('mouseenter', type);
-    card.addEventListener('mouseleave', clear);
-
-    // Touch: tap to type
-    card.addEventListener('click', (e) => {
-      if (card.classList.contains('is-typing')) {
-        clear();
-      } else {
-        type();
-      }
-    });
-  });
-
   /* ─────── Schedule row expansion ─────── */
   document.querySelectorAll('.sched-row').forEach(row => {
     row.addEventListener('click', () => {
-      const wasOpen = row.classList.contains('is-open');
-      // optional: close others
-      // document.querySelectorAll('.sched-row.is-open').forEach(r => r.classList.remove('is-open'));
-      row.classList.toggle('is-open', !wasOpen);
-    });
-  });
-
-  /* ─────── Sound: opt-in toast + chime on first scroll ─────── */
-  const soundToggle = document.getElementById('soundToggle');
-  const soundLabel = document.getElementById('soundLabel');
-  const soundToast = document.getElementById('soundToast');
-  const acceptBtn = document.getElementById('soundAccept');
-  const declineBtn = document.getElementById('soundDecline');
-
-  let soundEnabled = false;
-  let chimePlayed = false;
-  let audioCtx = null;
-
-  function playChime() {
-    try {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const now = audioCtx.currentTime;
-
-      // Two oscillators: root (A4=440) + fifth (E5=659.25), soft triangle
-      const tones = [
-        { freq: 440.00, gain: 0.08, delay: 0.00 },
-        { freq: 659.25, gain: 0.05, delay: 0.04 },
-        { freq: 220.00, gain: 0.04, delay: 0.10 } // sub-octave for warmth
-      ];
-
-      tones.forEach(t => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = t.freq;
-
-        gain.gain.setValueAtTime(0, now + t.delay);
-        gain.gain.linearRampToValueAtTime(t.gain, now + t.delay + 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + t.delay + 2.8);
-
-        osc.connect(gain).connect(audioCtx.destination);
-        osc.start(now + t.delay);
-        osc.stop(now + t.delay + 3.0);
-      });
-    } catch (err) {
-      // Audio failed — silent fail, this is optional
-    }
-  }
-
-  function enableSound() {
-    soundEnabled = true;
-    soundToggle.classList.add('is-on');
-    soundLabel.textContent = 'Sound · On';
-    soundToast.classList.remove('is-shown');
-    // prime context with a user gesture
-    if (!audioCtx) {
-      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-    }
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    // confirmation chime
-    setTimeout(playChime, 200);
-  }
-
-  function disableSound() {
-    soundEnabled = false;
-    soundToggle.classList.remove('is-on');
-    soundLabel.textContent = 'Sound · Off';
-  }
-
-  acceptBtn.addEventListener('click', enableSound);
-  declineBtn.addEventListener('click', () => {
-    soundToast.classList.remove('is-shown');
-  });
-  soundToggle.addEventListener('click', () => {
-    if (soundEnabled) disableSound();
-    else enableSound();
-  });
-
-  // Show toast shortly after load
-  setTimeout(() => {
-    soundToast.classList.add('is-shown');
-  }, 2400);
-
-  // Auto-hide toast after a while
-  setTimeout(() => {
-    soundToast.classList.remove('is-shown');
-  }, 14000);
-
-  // First scroll chime — only if enabled, only once
-  let scrollListenerAttached = false;
-  function attachScrollChime() {
-    if (scrollListenerAttached) return;
-    scrollListenerAttached = true;
-    window.addEventListener('scroll', () => {
-      if (soundEnabled && !chimePlayed) {
-        chimePlayed = true;
-        playChime();
-      }
-    }, { passive: true, once: false });
-  }
-  attachScrollChime();
-
-  /* ─────── Pause hero breath when off-screen ─────── */
-  const heroImg = document.querySelector('.hero__img-wrap');
-  const heroSection = document.querySelector('.hero');
-  if (heroImg && heroSection && !reduceMotion) {
-    const heroObs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        heroImg.style.animationPlayState = e.isIntersecting ? 'running' : 'paused';
-      });
-    }, { threshold: 0 });
-    heroObs.observe(heroSection);
-  }
-
-  /* ─────── Topbar subtle condense on scroll ─────── */
-  const topbar = document.querySelector('.topbar');
-  let lastY = 0;
-  window.addEventListener('scroll', () => {
-    const y = window.scrollY;
-    if (y > 60) {
-      topbar.style.background = 'rgba(244, 237, 224, 0.94)';
-    } else {
-      topbar.style.background = 'rgba(244, 237, 224, 0.86)';
-    }
-    lastY = y;
-  }, { passive: true });
-
-  /* ─────── Smooth anchor scroll with offset ─────── */
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', (e) => {
-      const id = a.getAttribute('href').slice(1);
-      const target = document.getElementById(id);
-      if (target) {
-        e.preventDefault();
-        const y = target.getBoundingClientRect().top + window.scrollY - 60;
-        window.scrollTo({ top: y, behavior: 'smooth' });
-      }
+      row.classList.toggle('is-open');
     });
   });
 
 })();
 </script>
-
 </body>
 </html>
